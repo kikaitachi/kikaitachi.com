@@ -158,6 +158,9 @@ gl.bindVertexArray(vao);
 gl.enableVertexAttribArray(positionAttributeLocation);
 gl.vertexAttribPointer(positionAttributeLocation, 3, gl.FLOAT, false, 0, 0);
 
+const near = 0;
+const far = 2000;
+const fieldOfViewInRadians = degToRad(60);
 const rotation = [degToRad(-25), degToRad(0), degToRad(0)];
 const rotationSpeed = 0.6;
 
@@ -260,12 +263,6 @@ const drawScene = () => {
 
   rotation[1] += rotationSpeed / 60.0;
   const aspectRatio = gl.canvas.clientWidth / gl.canvas.clientHeight;
-  const near = 0;
-  const far = 2000;
-  const fieldOfViewInRadians = degToRad(60);
-  const translation = [0, 0, -3];
-  const f = 1.0 / Math.tan(fieldOfViewInRadians / 2);
-  const rangeInv = 1 / (near - far);
   const matrix = multiplyMatrices(
     perspectiveMatrix(fieldOfViewInRadians, aspectRatio, near, far),
     translateMatrix(0, 0, -3),
