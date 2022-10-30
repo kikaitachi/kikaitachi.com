@@ -216,11 +216,19 @@ const perspectiveMatrix = (fieldOfViewInRadians, aspectRatio, near, far) => {
 }
 
 const translateMatrix = (x, y, z) => [
-  1,    0,    0,   0,
-  0,    1,    0,   0,
-  0,    0,    1,   0,
-  x,    y,    z,   1
+  1, 0, 0, 0,
+  0, 1, 0, 0,
+  0, 0, 1, 0,
+  x, y, z, 1
 ];
+
+const scaleMatrix = (w, h, d) => [
+  w, 0, 0, 0,
+  0, h, 0, 0,
+  0, 0, d, 0,
+  0, 0, 0, 1
+];
+
 
 const rotateXMatrix = (a) => [
   1, 0, 0, 0,
