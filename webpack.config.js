@@ -7,6 +7,27 @@ module.exports = {
     },
     compress: true,
     port: 9000,
-    open: true
+    open: false
+  },
+  module: {
+    rules: [
+      {
+        test: /\.wasm$/,
+        type: "javascript/auto",
+        loader: "file-loader",
+        options: {
+          publicPath: "../../wasm/",
+          outputPath: "wasm/"
+        }
+      }
+    ]
+  },
+  resolve: {
+    fallback: {
+      fs: false,
+      child_process: false,
+      path: false,
+      crypto: false,
+    }
   },
 };
