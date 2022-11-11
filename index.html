@@ -349,7 +349,47 @@ const openCascadeHelper = {
       facelist.push(this_face);
     }
     return facelist;
-  }
+  },
+  joinPrimitives(facelist) {
+    let obP = 0;
+    let obN = 0;
+    let obTR = 0;
+    let advance = 0;
+    const locVertexcoord = [];
+    const locNormalcoord = [];
+    const locTriIndices = [];
+
+    facelist.forEach(myface => {
+      for (let x = 0; x < myface.vertex_coord.length / 3; x++) {
+        locVertexcoord[(obP * 3) + 0] = myface.vertex_coord[(x * 3) + 0];
+        locVertexcoord[(obP * 3) + 1] = myface.vertex_coord[(x * 3) + 1];
+        locVertexcoord[(obP * 3) + 2] = myface.vertex_coord[(x * 3) + 2];
+        obP++;
+      }
+      for (let x = 0; x < myface.normal_coord.length / 3; x++) {
+        locNormalcoord[(obN * 3) + 0] = myface.normal_coord[(x * 3) + 0];
+        locNormalcoord[(obN * 3) + 1] = myface.normal_coord[(x * 3) + 1];
+        locNormalcoord[(obN * 3) + 2] = myface.normal_coord[(x * 3) + 2];
+        obN++;
+      }
+      for (let x = 0; x < myface.tri_indexes.length / 3; x++) {
+        locTriIndices[(obTR * 3) + 0] = myface.tri_indexes[(x * 3) + 0] + advance - 1;
+        locTriIndices[(obTR * 3) + 1] = myface.tri_indexes[(x * 3) + 1] + advance - 1;
+        locTriIndices[(obTR * 3) + 2] = myface.tri_indexes[(x * 3) + 2] + advance - 1;
+        obTR++;
+      }
+
+      advance = obP;
+    });
+    return [locVertexcoord, locNormalcoord, locTriIndices];
+  },
+  triangleVertexIndices(trianglenum, locTriIndices) {
+    const pID = locTriIndices[(trianglenum * 3) + 0] * 3;
+    const qID = locTriIndices[(trianglenum * 3) + 1] * 3;
+    const rID = locTriIndices[(trianglenum * 3) + 2] * 3;
+
+    return [pID, qID, rID];
+  },
 };
 
 // https://cdn.jsdelivr.net/npm/opencascade.js@2.0.0-beta.54fa06a
@@ -357,9 +397,38 @@ import("/opencascade.full.js")
   .then((module) => {
     module.default().then((oc) => {
       openCascadeHelper.setOpenCascade(oc);
-      const sphere = new oc.BRepPrimAPI_MakeSphere_1(1).Shape();
+      const sphere = new oc.BRepPrimAPI_MakeSphere_1(0.5).Shape();
       const tesselated = openCascadeHelper.tessellate(sphere);
       console.log("Tesselated sphere:" + tesselated);
+      const [locVertexcoord, locNormalcoord, locTriIndices] = openCascadeHelper.joinPrimitives(tesselated);
+      const tot_triangle_count = tesselated.reduce((a, b) => a + b.number_of_triangles, 0);
+      positions.length = 0;
+      for (let i = 0; i < tot_triangle_count; i++) {
+        const vertices_idx = openCascadeHelper.triangleVertexIndices(i, locTriIndices);
+        // first vertex
+        positions.push(
+          locVertexcoord[vertices_idx[0] + 0],
+          locVertexcoord[vertices_idx[0] + 1],
+          locVertexcoord[vertices_idx[0] + 2]
+        );
+        // second vertex
+        positions.push(
+          locVertexcoord[vertices_idx[1] + 0],
+          locVertexcoord[vertices_idx[1] + 1],
+          locVertexcoord[vertices_idx[1] + 2]
+        );
+        // third vertex
+        positions.push(
+          locVertexcoord[vertices_idx[2] + 0],
+          locVertexcoord[vertices_idx[2] + 1],
+          locVertexcoord[vertices_idx[2] + 2]
+        );
+      }
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+      const vao = gl.createVertexArray();
+      gl.bindVertexArray(vao);
+      gl.enableVertexAttribArray(positionAttributeLocation);
+      gl.vertexAttribPointer(positionAttributeLocation, 3, gl.FLOAT, false, 0, 0);
     });
   });
 </script>
