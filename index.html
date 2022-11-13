@@ -93,7 +93,8 @@ in float v_depth;
 out vec4 outColor;
 
 void main() {
-  outColor = vec4(v_depth, v_depth, v_depth, 1);
+  //outColor = vec4(v_depth, v_depth, v_depth, 1);
+  outColor = vec4(0.8, 0.0, 0.0, 1);
 }
 `;
 
@@ -254,6 +255,8 @@ const rotateZMatrix = (a) => [
   0, 0, 0, 1
 ];
 
+let scale = 1;
+
 const drawScene = () => {
   resizeCanvasToDisplaySize(gl.canvas);
 
@@ -269,6 +272,7 @@ const drawScene = () => {
     rotateXMatrix(rotation[0]),
     rotateYMatrix(rotation[1]),
     rotateZMatrix(rotation[2]),
+    scaleMatrix(scale, scale, scale),
   );
 
   gl.uniformMatrix4fv(matrixLocation, false, matrix);
@@ -392,8 +396,8 @@ const openCascadeHelper = {
   },
 };
 
-// https://cdn.jsdelivr.net/npm/opencascade.js@2.0.0-beta.54fa06a
-import("/opencascade.full.js")
+// https://cdn.jsdelivr.net/npm/opencascade.js@2.0.0-beta.94e2944
+/*import("/opencascade.full.js")
   .then((module) => {
     module.default().then((oc) => {
       openCascadeHelper.setOpenCascade(oc);
@@ -430,7 +434,7 @@ import("/opencascade.full.js")
       gl.enableVertexAttribArray(positionAttributeLocation);
       gl.vertexAttribPointer(positionAttributeLocation, 3, gl.FLOAT, false, 0, 0);
     });
-  });
+  });*/
 
 const processFiles = (item) => {
   console.log(`Name: ${item.name}, path: ${item.fullPath}`);
@@ -463,6 +467,11 @@ canvas.addEventListener("drop", (event) => {
     }
   }
 }, false);
+
+canvas.addEventListener('wheel', (event) => {
+  event.preventDefault();
+  scale += event.deltaY * -0.001;
+});
 </script>
 </body>
 </html>
