@@ -431,6 +431,38 @@ import("/opencascade.full.js")
       gl.vertexAttribPointer(positionAttributeLocation, 3, gl.FLOAT, false, 0, 0);
     });
   });
+
+const processFiles = (item) => {
+  console.log(`Name: ${item.name}, path: ${item.fullPath}`);
+  if (item.isDirectory) {
+    item.createReader().readEntries((entries) => {
+      entries.forEach((entry) => {
+        processFiles(entry);
+      });
+    });
+  } else {
+    item.file((file) => {
+      let reader = new FileReader();
+      reader.onload = () => {
+        console.log(`Centent: ${reader.result}`);
+      };
+      reader.readAsText(file);
+    });
+  }
+};
+canvas.addEventListener("dragover", (event) => {
+  event.preventDefault();
+}, false);
+canvas.addEventListener("drop", (event) => {
+  let items = event.dataTransfer.items;
+  event.preventDefault();
+  for (let i = 0; i < items.length; i++) {
+    let item = items[i].webkitGetAsEntry();
+    if (item) {
+      processFiles(item);
+    }
+  }
+}, false);
 </script>
 </body>
 </html>
