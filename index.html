@@ -255,7 +255,10 @@ const rotateZMatrix = (a) => [
   0, 0, 0, 1
 ];
 
-let scale = 1;
+let scale = far / 4;
+let x = 0;
+let y = 0;
+let z = -(far - near) / 2;
 
 const drawScene = () => {
   resizeCanvasToDisplaySize(gl.canvas);
@@ -264,11 +267,11 @@ const drawScene = () => {
   gl.clearColor(0, 0, 0, 1);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-  rotation[1] += rotationSpeed / 60.0;
+  //rotation[1] += rotationSpeed / 60.0;
   const aspectRatio = gl.canvas.clientWidth / gl.canvas.clientHeight;
   const matrix = multiplyMatrices(
     perspectiveMatrix(fieldOfViewInRadians, aspectRatio, near, far),
-    translateMatrix(0, 0, -3),
+    translateMatrix(x, y, z),
     rotateXMatrix(rotation[0]),
     rotateYMatrix(rotation[1]),
     rotateZMatrix(rotation[2]),
@@ -470,8 +473,44 @@ canvas.addEventListener("drop", (event) => {
 
 canvas.addEventListener('wheel', (event) => {
   event.preventDefault();
-  scale += event.deltaY * -0.001;
+  scale += event.deltaY * -0.2;
 });
+
+let rotating = false;
+let moving = false;
+let startX, startY;
+document.addEventListener('contextmenu', (event) => {
+  event.preventDefault();
+}, false);
+canvas.addEventListener('mousedown', (event) => {
+  event.preventDefault();
+  if (event.buttons == 1) {
+    rotating = true;
+  }
+  if (event.buttons == 2) {
+    moving = true;
+  }
+  startX = event.clientX;
+  startY = event.clientY;
+}, false);
+canvas.addEventListener('mouseup', (event) => {
+  event.preventDefault();
+  rotating = false;
+  moving = false;
+}, false);
+canvas.addEventListener('mousemove', (event) => {
+  event.preventDefault();
+  if (moving) {
+    x += event.clientX - startX;
+    y -= event.clientY - startY;
+  }
+  if (rotating) {
+    rotation[1] -= degToRad(event.clientX - startX);
+    rotation[0] -= degToRad(event.clientY - startY);
+  }
+  startX = event.clientX;
+  startY = event.clientY;
+}, false);
 </script>
 </body>
 </html>
