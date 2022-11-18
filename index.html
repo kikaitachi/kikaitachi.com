@@ -391,6 +391,15 @@ function visualize(openCascade, shape) {
   return geometries;
 }
 
+const shapeToSTEP = (openCascade, shape, fileName) => {
+  const writer = new openCascade.STEPControl_Writer_1();
+  writer.Transfer(shape, openCascade.STEPControl_StepModelType.STEPControl_AsIs, true, new openCascade.Message_ProgressRange_1());
+  writer.Write(fileName);
+  const result = openCascade.FS.readFile("/" + fileName, { encoding:"utf8" });
+  openCascade.FS.unlink("/" + fileName);
+  return result;
+}
+
 // https://cdn.jsdelivr.net/npm/opencascade.js@2.0.0-beta.94e2944
 import("/opencascade.full.js")
   .then((module) => {
@@ -437,6 +446,7 @@ import("/opencascade.full.js")
       gl.bindVertexArray(vao);
       gl.enableVertexAttribArray(positionAttributeLocation);
       gl.vertexAttribPointer(positionAttributeLocation, 3, gl.FLOAT, false, 0, 0);
+      console.log(shapeToSTEP(oc, sphere, "test.step"));
     });
   });
 
