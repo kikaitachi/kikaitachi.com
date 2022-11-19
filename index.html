@@ -11,15 +11,24 @@ body, html {
   height: 100%;
   overflow: hidden;
 }
-
-canvas {
+#c {
   width: 100%;
   height: 100%;
+}
+#d {
+  border: 1px solid silver;
+  border-radius: 1rem;
+  color: silver;
+  padding: 0 0.5rem;
+  position: fixed;
+  right: 0.5rem;
+  top: 0.5rem;
 }
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
+<div id="d">Download STEP</div>
 <script>
 const maxX            = 2;
 const maxY            = 2;
@@ -404,9 +413,9 @@ const shapeToSTEP = (openCascade, shape, fileName) => {
 import("/opencascade.full.js")
   .then((module) => {
     module.default().then((oc) => {
-      const sphere = new oc.BRepPrimAPI_MakeSphere_1(1).Shape();
+      let shape = new oc.BRepPrimAPI_MakeSphere_1(1).Shape();
       positions.length = 0;
-      const tesselated = visualize(oc, sphere)[0];
+      const tesselated = visualize(oc, shape)[0];
       for (let i = 0; i < tesselated.indices.length / 3; i++) {
         positions.push(
           tesselated.vertices[tesselated.indices[i * 3] * 3],
@@ -446,7 +455,19 @@ import("/opencascade.full.js")
       gl.bindVertexArray(vao);
       gl.enableVertexAttribArray(positionAttributeLocation);
       gl.vertexAttribPointer(positionAttributeLocation, 3, gl.FLOAT, false, 0, 0);
-      console.log(shapeToSTEP(oc, sphere, "test.step"));
+
+      document.getElementById('d').addEventListener('click', () => {
+        const el = document.createElement('a');
+        const fileName = 'part.step';
+        el.setAttribute('download', fileName);
+        const href = URL.createObjectURL(new Blob([shapeToSTEP(oc, shape, fileName)], {
+          type: "application/STEP",
+        }));
+        el.href = href;
+        el.setAttribute('target', '_blank');
+        el.click();
+        URL.revokeObjectURL(href);
+      });
     });
   });
 
