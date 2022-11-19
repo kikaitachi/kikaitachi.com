@@ -409,99 +409,119 @@ const shapeToSTEP = (openCascade, shape, fileName) => {
   return result;
 }
 
+let current_shape = null;
+
+const addShape = (oc, shape) => {
+  current_shape = shape;
+  visualize(oc, shape).forEach(tesselated => {
+    for (let i = 0; i < tesselated.indices.length / 3; i++) {
+      positions.push(
+        tesselated.vertices[tesselated.indices[i * 3] * 3],
+        tesselated.vertices[tesselated.indices[i * 3] * 3 + 1],
+        tesselated.vertices[tesselated.indices[i * 3] * 3 + 2]
+      );
+      positions.push(
+        tesselated.vertices[tesselated.indices[i * 3 + 1] * 3],
+        tesselated.vertices[tesselated.indices[i * 3 + 1] * 3 + 1],
+        tesselated.vertices[tesselated.indices[i * 3 + 1] * 3 + 2]
+      );
+
+      positions.push(
+        tesselated.vertices[tesselated.indices[i * 3 + 1] * 3],
+        tesselated.vertices[tesselated.indices[i * 3 + 1] * 3 + 1],
+        tesselated.vertices[tesselated.indices[i * 3 + 1] * 3 + 2]
+      );
+      positions.push(
+        tesselated.vertices[tesselated.indices[i * 3 + 2] * 3],
+        tesselated.vertices[tesselated.indices[i * 3 + 2] * 3 + 1],
+        tesselated.vertices[tesselated.indices[i * 3 + 2] * 3 + 2]
+      );
+
+      positions.push(
+        tesselated.vertices[tesselated.indices[i * 3] * 3],
+        tesselated.vertices[tesselated.indices[i * 3] * 3 + 1],
+        tesselated.vertices[tesselated.indices[i * 3] * 3 + 2]
+      );
+      positions.push(
+        tesselated.vertices[tesselated.indices[i * 3 + 2] * 3],
+        tesselated.vertices[tesselated.indices[i * 3 + 2] * 3 + 1],
+        tesselated.vertices[tesselated.indices[i * 3 + 2] * 3 + 2]
+      );
+    }
+  });
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+  const vao = gl.createVertexArray();
+  gl.bindVertexArray(vao);
+  gl.enableVertexAttribArray(positionAttributeLocation);
+  gl.vertexAttribPointer(positionAttributeLocation, 3, gl.FLOAT, false, 0, 0);
+}
+
 // https://cdn.jsdelivr.net/npm/opencascade.js@2.0.0-beta.94e2944
 import("/opencascade.full.js")
   .then((module) => {
     module.default().then((oc) => {
-      let shape = new oc.BRepPrimAPI_MakeSphere_1(1).Shape();
-      positions.length = 0;
-      const tesselated = visualize(oc, shape)[0];
-      for (let i = 0; i < tesselated.indices.length / 3; i++) {
-        positions.push(
-          tesselated.vertices[tesselated.indices[i * 3] * 3],
-          tesselated.vertices[tesselated.indices[i * 3] * 3 + 1],
-          tesselated.vertices[tesselated.indices[i * 3] * 3 + 2]
-        );
-        positions.push(
-          tesselated.vertices[tesselated.indices[i * 3 + 1] * 3],
-          tesselated.vertices[tesselated.indices[i * 3 + 1] * 3 + 1],
-          tesselated.vertices[tesselated.indices[i * 3 + 1] * 3 + 2]
-        );
-
-        positions.push(
-          tesselated.vertices[tesselated.indices[i * 3 + 1] * 3],
-          tesselated.vertices[tesselated.indices[i * 3 + 1] * 3 + 1],
-          tesselated.vertices[tesselated.indices[i * 3 + 1] * 3 + 2]
-        );
-        positions.push(
-          tesselated.vertices[tesselated.indices[i * 3 + 2] * 3],
-          tesselated.vertices[tesselated.indices[i * 3 + 2] * 3 + 1],
-          tesselated.vertices[tesselated.indices[i * 3 + 2] * 3 + 2]
-        );
-
-        positions.push(
-          tesselated.vertices[tesselated.indices[i * 3] * 3],
-          tesselated.vertices[tesselated.indices[i * 3] * 3 + 1],
-          tesselated.vertices[tesselated.indices[i * 3] * 3 + 2]
-        );
-        positions.push(
-          tesselated.vertices[tesselated.indices[i * 3 + 2] * 3],
-          tesselated.vertices[tesselated.indices[i * 3 + 2] * 3 + 1],
-          tesselated.vertices[tesselated.indices[i * 3 + 2] * 3 + 2]
-        );
+      const cone = (params) => {
+        addShape(oc, new oc.BRepPrimAPI_MakeCone_1(
+          params.radiusTop,
+          params.radiusBottom,
+          params.height
+        ).Shape());
+      };
+      const sphere = (params) => {
+        addShape(oc, new oc.BRepPrimAPI_MakeSphere_1(
+          params.radius
+        ).Shape());
       }
-      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
-      const vao = gl.createVertexArray();
-      gl.bindVertexArray(vao);
-      gl.enableVertexAttribArray(positionAttributeLocation);
-      gl.vertexAttribPointer(positionAttributeLocation, 3, gl.FLOAT, false, 0, 0);
 
       document.getElementById('d').addEventListener('click', () => {
-        const el = document.createElement('a');
-        const fileName = 'part.step';
-        el.setAttribute('download', fileName);
-        const href = URL.createObjectURL(new Blob([shapeToSTEP(oc, shape, fileName)], {
-          type: "application/STEP",
-        }));
-        el.href = href;
-        el.setAttribute('target', '_blank');
-        el.click();
-        URL.revokeObjectURL(href);
+        if (current_shape != null) {
+          const el = document.createElement('a');
+          const fileName = 'part.step';
+          el.setAttribute('download', fileName);
+          const href = URL.createObjectURL(new Blob([shapeToSTEP(oc, current_shape, fileName)], {
+            type: "application/STEP",
+          }));
+          el.href = href;
+          el.setAttribute('target', '_blank');
+          el.click();
+          URL.revokeObjectURL(href);
+        }
       });
+
+      const processFiles = (item) => {
+        console.log(`Name: ${item.name}, path: ${item.fullPath}`);
+        if (item.isDirectory) {
+          item.createReader().readEntries((entries) => {
+            entries.forEach((entry) => {
+              processFiles(entry);
+            });
+          });
+        } else {
+          item.file((file) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+              positions.length = 0;
+              eval('(function(Cone, Sphere) {' + reader.result + '})(cone, sphere);');
+            };
+            reader.readAsText(file);
+          });
+        }
+      };
+      canvas.addEventListener("dragover", (event) => {
+        event.preventDefault();
+      }, false);
+      canvas.addEventListener("drop", (event) => {
+        const items = event.dataTransfer.items;
+        event.preventDefault();
+        for (let i = 0; i < items.length; i++) {
+          let item = items[i].webkitGetAsEntry();
+          if (item) {
+            processFiles(item);
+          }
+        }
+      }, false);
     });
   });
-
-const processFiles = (item) => {
-  console.log(`Name: ${item.name}, path: ${item.fullPath}`);
-  if (item.isDirectory) {
-    item.createReader().readEntries((entries) => {
-      entries.forEach((entry) => {
-        processFiles(entry);
-      });
-    });
-  } else {
-    item.file((file) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        console.log(`Centent: ${reader.result}`);
-      };
-      reader.readAsText(file);
-    });
-  }
-};
-canvas.addEventListener("dragover", (event) => {
-  event.preventDefault();
-}, false);
-canvas.addEventListener("drop", (event) => {
-  const items = event.dataTransfer.items;
-  event.preventDefault();
-  for (let i = 0; i < items.length; i++) {
-    let item = items[i].webkitGetAsEntry();
-    if (item) {
-      processFiles(item);
-    }
-  }
-}, false);
 
 canvas.addEventListener('wheel', (event) => {
   event.preventDefault();
