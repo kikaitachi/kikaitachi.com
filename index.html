@@ -413,6 +413,7 @@ let current_shape = null;
 
 const addShape = (oc, shape) => {
   current_shape = shape;
+  positions.length = 0;
   visualize(oc, shape).forEach(tesselated => {
     for (let i = 0; i < tesselated.indices.length / 3; i++) {
       positions.push(
@@ -454,21 +455,40 @@ const addShape = (oc, shape) => {
   gl.bindVertexArray(vao);
   gl.enableVertexAttribArray(positionAttributeLocation);
   gl.vertexAttribPointer(positionAttributeLocation, 3, gl.FLOAT, false, 0, 0);
+  return shape;
 }
 
 // https://cdn.jsdelivr.net/npm/opencascade.js@2.0.0-beta.94e2944
 import("/opencascade.full.js")
   .then((module) => {
     module.default().then((oc) => {
+      const difference = (...arguments) => {
+        let result = arguments[0];
+        for (let i = 1; i < arguments.length; i++) {
+          let intermediate = new oc.BRepAlgoAPI_Cut_3(result, arguments[i], new oc.Message_ProgressRange_1());
+          intermediate.Build(new oc.Message_ProgressRange_1());
+          result = intermediate.Shape();
+        }
+        return addShape(oc, result);
+      }
+      const union = (...arguments) => {
+        let result = arguments[0];
+        for (let i = 1; i < arguments.length; i++) {
+          let intermediate = new oc.BRepAlgoAPI_Fuse_3(result, arguments[i], new oc.Message_ProgressRange_1());
+          intermediate.Build(new oc.Message_ProgressRange_1());
+          result = intermediate.Shape();
+        }
+        return addShape(oc, result);
+      }
       const cone = (params) => {
-        addShape(oc, new oc.BRepPrimAPI_MakeCone_1(
+        return addShape(oc, new oc.BRepPrimAPI_MakeCone_1(
           params.radiusTop,
           params.radiusBottom,
           params.height
         ).Shape());
       };
       const sphere = (params) => {
-        addShape(oc, new oc.BRepPrimAPI_MakeSphere_1(
+        return addShape(oc, new oc.BRepPrimAPI_MakeSphere_1(
           params.radius
         ).Shape());
       }
@@ -500,8 +520,7 @@ import("/opencascade.full.js")
           item.file((file) => {
             const reader = new FileReader();
             reader.onload = () => {
-              positions.length = 0;
-              eval('(function(Cone, Sphere) {' + reader.result + '})(cone, sphere);');
+              eval('(function(difference, cone, sphere, union) {' + reader.result + '})(difference, cone, sphere, union);');
             };
             reader.readAsText(file);
           });
