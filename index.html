@@ -448,10 +448,6 @@ const addShape = (oc, shape) => {
     }
   });
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
-  const vao = gl.createVertexArray();
-  gl.bindVertexArray(vao);
-  gl.enableVertexAttribArray(positionAttributeLocation);
-  gl.vertexAttribPointer(positionAttributeLocation, 3, gl.FLOAT, false, 0, 0);
 }
 
 // https://cdn.jsdelivr.net/npm/opencascade.js@2.0.0-beta.94e2944
