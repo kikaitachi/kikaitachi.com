@@ -409,10 +409,7 @@ const shapeToSTEP = (openCascade, shape, fileName) => {
   return result;
 }
 
-let current_shape = null;
-
 const addShape = (oc, shape) => {
-  current_shape = shape;
   positions.length = 0;
   visualize(oc, shape).forEach(tesselated => {
     for (let i = 0; i < tesselated.indices.length / 3; i++) {
@@ -455,13 +452,14 @@ const addShape = (oc, shape) => {
   gl.bindVertexArray(vao);
   gl.enableVertexAttribArray(positionAttributeLocation);
   gl.vertexAttribPointer(positionAttributeLocation, 3, gl.FLOAT, false, 0, 0);
-  return shape;
 }
 
 // https://cdn.jsdelivr.net/npm/opencascade.js@2.0.0-beta.94e2944
 import("/opencascade.full.js")
   .then((module) => {
     module.default().then((oc) => {
+      let current_shape = null;
+
       const difference = (...arguments) => {
         let result = arguments[0];
         for (let i = 1; i < arguments.length; i++) {
@@ -469,7 +467,16 @@ import("/opencascade.full.js")
           intermediate.Build(new oc.Message_ProgressRange_1());
           result = intermediate.Shape();
         }
-        return addShape(oc, result);
+        return current_shape = result;
+      }
+      const intersection = (...arguments) => {
+        let result = arguments[0];
+        for (let i = 1; i < arguments.length; i++) {
+          let intermediate = new oc.BRepAlgoAPI_Common_3(result, arguments[i], new oc.Message_ProgressRange_1());
+          intermediate.Build(new oc.Message_ProgressRange_1());
+          result = intermediate.Shape();
+        }
+        return current_shape = result;
       }
       const union = (...arguments) => {
         let result = arguments[0];
@@ -478,19 +485,21 @@ import("/opencascade.full.js")
           intermediate.Build(new oc.Message_ProgressRange_1());
           result = intermediate.Shape();
         }
-        return addShape(oc, result);
+        return current_shape = result;
       }
       const cone = (params) => {
-        return addShape(oc, new oc.BRepPrimAPI_MakeCone_1(
+        const result = new oc.BRepPrimAPI_MakeCone_1(
           params.radiusTop,
           params.radiusBottom,
           params.height
-        ).Shape());
+        ).Shape();
+        return current_shape = result;
       };
       const sphere = (params) => {
-        return addShape(oc, new oc.BRepPrimAPI_MakeSphere_1(
+        const result = new oc.BRepPrimAPI_MakeSphere_1(
           params.radius
-        ).Shape());
+        ).Shape();
+        return current_shape = result;
       }
 
       document.getElementById('d').addEventListener('click', () => {
@@ -520,7 +529,7 @@ import("/opencascade.full.js")
           item.file((file) => {
             const reader = new FileReader();
             reader.onload = () => {
-              eval('(function(difference, cone, sphere, union) {' + reader.result + '})(difference, cone, sphere, union);');
+              eval('(function() {' + reader.result + '})();addShape(oc, current_shape);');
             };
             reader.readAsText(file);
           });
