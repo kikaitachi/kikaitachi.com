@@ -419,16 +419,31 @@ const addShape = (oc, shape) => {
         tesselated.vertices[tesselated.indices[i * 3] * 3 + 1],
         tesselated.vertices[tesselated.indices[i * 3] * 3 + 2]
       );
+      /*positions.push(
+        tesselated.normals[tesselated.indices[i * 3] * 3],
+        tesselated.normals[tesselated.indices[i * 3] * 3 + 1],
+        tesselated.normals[tesselated.indices[i * 3] * 3 + 2]
+      );*/
       positions.push(
         tesselated.vertices[tesselated.indices[i * 3 + 1] * 3],
         tesselated.vertices[tesselated.indices[i * 3 + 1] * 3 + 1],
         tesselated.vertices[tesselated.indices[i * 3 + 1] * 3 + 2]
       );
+      /*positions.push(
+        tesselated.normals[tesselated.indices[i * 3 + 1] * 3],
+        tesselated.normals[tesselated.indices[i * 3 + 1] * 3 + 1],
+        tesselated.normals[tesselated.indices[i * 3 + 1] * 3 + 2]
+      );*/
       positions.push(
         tesselated.vertices[tesselated.indices[i * 3 + 2] * 3],
         tesselated.vertices[tesselated.indices[i * 3 + 2] * 3 + 1],
         tesselated.vertices[tesselated.indices[i * 3 + 2] * 3 + 2]
       );
+      /*positions.push(
+        tesselated.normals[tesselated.indices[i * 3 + 2] * 3],
+        tesselated.normals[tesselated.indices[i * 3 + 2] * 3 + 1],
+        tesselated.normals[tesselated.indices[i * 3 + 2] * 3 + 2]
+      );*/
     }
   });
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
@@ -467,6 +482,14 @@ import("/opencascade.full.js")
         }
         return current_shape = result;
       }
+      const box = (params) => {
+        const result = new oc.BRepPrimAPI_MakeBox_2(
+          params.width,
+          params.height,
+          params.depth
+        ).Shape();
+        return current_shape = result;
+      };
       const cone = (params) => {
         const result = new oc.BRepPrimAPI_MakeCone_1(
           params.radiusTop,
