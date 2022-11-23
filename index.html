@@ -102,7 +102,7 @@ in vec3 v_normal;
 out vec4 outColor;
 
 void main() {
-  vec3 normal = normalize(v_normal);
+  vec3 normal = normalize(v_normal) * 0.6 + 0.4;
   outColor = vec4(normal[0], normal[1], normal[2], 1);
 }
 `;
@@ -320,7 +320,7 @@ function visualize(openCascade, shape) {
     let inc;
     try {
       //in case some of the faces can not been visualized
-      inc = new openCascade.BRepMesh_IncrementalMesh_2(myFace, 0.1, false, 0.5, false);
+      inc = new openCascade.BRepMesh_IncrementalMesh_2(myFace, 0.025, false, 0.125, false);
     } catch (e) {
       console.error(`failed to build incremental mesh: ${e}`);
       continue;
