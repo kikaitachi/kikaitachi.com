@@ -90,6 +90,7 @@ out vec3 v_normal;
 
 void main() {
   gl_Position = u_matrix * a_position;
+  v_normal = a_normal;
 }
 `;
 
@@ -102,8 +103,7 @@ out vec4 outColor;
 
 void main() {
   vec3 normal = normalize(v_normal);
-  outColor = vec4(0.8, 0.2, 0.2, 1);
-  outColor[0] += normal[0];
+  outColor = vec4(normal[0], normal[1], normal[2], 1);
 }
 `;
 
@@ -175,7 +175,7 @@ gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 gl.enableVertexAttribArray(normalLocation);
 gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
 
-const near = 0;
+const near = 0.1;
 const far = 2000;
 const fieldOfViewInRadians = degToRad(60);
 const rotation = [degToRad(-25), degToRad(0), degToRad(0)];
@@ -216,7 +216,7 @@ const multiply2Matrices = (a, b) => {
   return result;
 }
 
-function multiplyMatrices() {
+const multiplyMatrices = (...arguments) => {
   let result = arguments[0];
   for (let i = 1; i < arguments.length; i++) {
     result = multiply2Matrices(result, arguments[i]);
@@ -285,6 +285,9 @@ const drawScene = () => {
   gl.clearColor(0, 0, 0, 1);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+  gl.enable(gl.DEPTH_TEST);
+  gl.enable(gl.CULL_FACE);
+
   //rotation[1] += rotationSpeed / 60.0;
   const aspectRatio = gl.canvas.clientWidth / gl.canvas.clientHeight;
   const matrix = multiplyMatrices(
@@ -319,7 +322,7 @@ function visualize(openCascade, shape) {
       //in case some of the faces can not been visualized
       inc = new openCascade.BRepMesh_IncrementalMesh_2(myFace, 0.1, false, 0.5, false);
     } catch (e) {
-      console.error('face visualizi<ng failed');
+      console.error(`failed to build incremental mesh: ${e}`);
       continue;
     }
 
