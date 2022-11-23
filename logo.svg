@@ -1,0 +1,12 @@
+<svg viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+<style>
+.top {
+  font: bold 48px sans-serif;
+}
+.bottom {
+  font: italic 52px sans-serif;
+}
+</style>
+<text x="0" y="60" class="top">KIKAI</text>
+<text x="9" y="110" class="bottom">tachi</text>
+</svg>
