@@ -569,11 +569,11 @@ import("/opencascade.full.js")
       };
 
       document.getElementById('d').addEventListener('click', () => {
-        if (current_shape != null) {
+        if (current_shapes != null) {
           const el = document.createElement('a');
           const fileName = 'part.step';
           el.setAttribute('download', fileName);
-          const href = URL.createObjectURL(new Blob([shapeToSTEP(oc, current_shape, fileName)], {
+          const href = URL.createObjectURL(new Blob([shapeToSTEP(oc, current_shapes[0], fileName)], {
             type: "application/STEP",
           }));
           el.href = href;
