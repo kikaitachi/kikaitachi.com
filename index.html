@@ -12,10 +12,26 @@ body, html {
   margin: 0;
   height: 100%;
   overflow: hidden;
+  font-family: sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
 }
 #c {
   width: 100%;
   height: 100%;
+}
+#h {
+  background-color: rgba(64, 64, 64, 0.5);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3rem;
+}
+#l {
+  color: rgb(207, 207, 216);
+  margin-left: 1rem;
+  line-height: 3rem;
 }
 #d {
   background-color: rgba(9, 88, 186, 0.5);
@@ -25,9 +41,6 @@ body, html {
   position: fixed;
   right: 0.5rem;
   top: 0.5rem;
-  font-family: sans-serif;
-  font-weight: 400;
-  font-size: 16px;
 }
 #d:hover {
   background-color: rgba(9, 88, 186, 0.8);
@@ -36,8 +49,12 @@ body, html {
 </head>
 <body>
 <canvas id="c"></canvas>
-<div id="d">Download STEP</div>
+<div id="h"><div id="l">Loading: page</div><div id="d">Export STEP</div></div>
 <script>
+const setStatus = (message) => {
+  document.getElementById("l").innerHTML = message;
+}
+
 const maxX            = 2;
 const maxY            = 2;
 const virusSectors    = 6;
@@ -471,10 +488,14 @@ const addShape = (oc, shape) => {
   });
 }
 
+setStatus("Loading: JavaScript");
+
 // https://cdn.jsdelivr.net/npm/opencascade.js@2.0.0-beta.94e2944
 import("/opencascade.full.js")
   .then((module) => {
+    setStatus("Loading: WebAssemblies");
     module.default().then((oc) => {
+      setStatus("Drag and drop file to display it");
       let current_shapes = [];
 
       const removeCurrentShape = (shape) => {
