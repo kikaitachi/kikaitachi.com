@@ -33,7 +33,7 @@ body, html {
   margin-left: 1rem;
   line-height: 3rem;
 }
-#d {
+#e {
   background-color: rgba(9, 88, 186, 0.5);
   border-radius: 0.25rem;
   color: rgb(207, 207, 216);
@@ -41,8 +41,9 @@ body, html {
   position: fixed;
   right: 0.5rem;
   top: 0.5rem;
+  visibility: hidden;
 }
-#d:hover {
+#e:hover {
   background-color: rgba(9, 88, 186, 0.8);
 }
 .blink {
@@ -57,7 +58,7 @@ body, html {
 </head>
 <body>
 <canvas id="c"></canvas>
-<div id="h"><div id="l" class="blink">Loading...</div><div id="d">Export STEP</div></div>
+<div id="h"><div id="l" class="blink">Loading...</div><div id="e">Export STEP</div></div>
 <script>
 const status = document.getElementById("l");
 
@@ -354,14 +355,19 @@ const drawScene = () => {
 
 requestAnimationFrame(drawScene);
 
-const shapeToSTEP = (openCascade, shape, fileName) => {
-  const writer = new openCascade.STEPControl_Writer_1();
-  writer.Transfer(shape, openCascade.STEPControl_StepModelType.STEPControl_AsIs, true, new openCascade.Message_ProgressRange_1());
-  writer.Write(fileName);
-  const result = openCascade.FS.readFile("/" + fileName, { encoding:"utf8" });
-  openCascade.FS.unlink("/" + fileName);
-  return result;
-}
+const exportSTEPButton = document.getElementById("e");
+
+const exportFile = (fileName, content) => {
+  const el = document.createElement('a');
+  el.setAttribute('download', fileName);
+  const href = URL.createObjectURL(new Blob([content], {
+    type: "application/STEP",
+  }));
+  el.href = href;
+  el.setAttribute('target', '_blank');
+  el.click();
+  URL.revokeObjectURL(href);
+};
 
 const ocWorker = new Worker("oc-worker.js");
 ocWorker.onmessage = (event) => {
@@ -377,6 +383,10 @@ ocWorker.onmessage = (event) => {
       gl.bufferData(gl.ARRAY_BUFFER, event.data.positions, gl.STATIC_DRAW);
       gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, event.data.normals, gl.STATIC_DRAW);
+      exportSTEPButton.style.visibility = "visible";
+      break;
+    case "export":
+      exportFile(event.data.fileName, event.data.content);
       break;
   }
 };
@@ -416,19 +426,8 @@ canvas.addEventListener("drop", (event) => {
   }
 }, false);
 
-document.getElementById('d').addEventListener('click', () => {
-  /*if (current_shapes != null) {
-    const el = document.createElement('a');
-    const fileName = 'part.step';
-    el.setAttribute('download', fileName);
-    const href = URL.createObjectURL(new Blob([shapeToSTEP(oc, current_shapes[0], fileName)], {
-      type: "application/STEP",
-    }));
-    el.href = href;
-    el.setAttribute('target', '_blank');
-    el.click();
-    URL.revokeObjectURL(href);
-  }*/
+exportSTEPButton.addEventListener('click', () => {
+  ocWorker.postMessage({type: "exportSTEP"});
 });
 
 canvas.addEventListener('wheel', (event) => {

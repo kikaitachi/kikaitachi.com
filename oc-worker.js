@@ -261,11 +261,30 @@ import("/opencascade.full.js").then((module) => {
       }, [positionArray.buffer, normalArray.buffer]);
     };
 
+    const exportSTEP = () => {
+      const fileName = "part.step";
+      const writer = new oc.STEPControl_Writer_1();
+      current_shapes.forEach(shape => {
+        writer.Transfer(shape, oc.STEPControl_StepModelType.STEPControl_AsIs, true, new oc.Message_ProgressRange_1());
+      });
+      writer.Write(fileName);
+      const content = oc.FS.readFile("/" + fileName, { encoding:"utf8" });
+      oc.FS.unlink("/" + fileName);
+      self.postMessage({
+        type: "export",
+        fileName: fileName,
+        content: content,
+      });
+    };
+
     self.onmessage = (event) => {
       console.log(`Message from main script: ${event.data.type}`);
       switch (event.data.type) {
         case "file":
           loadFile(event.data.content);
+          break;
+        case "exportSTEP":
+          exportSTEP();
           break;
       }
     }
