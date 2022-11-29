@@ -255,43 +255,33 @@ import("/opencascade.full.js").then((module) => {
       normals.length = 0;
       colors.length = 0;
 
-      const grid_size = 2;
-      positions.push(
-        grid_size / 2,
-        -grid_size / 2,
-        0
-      );
-      normals.push(
-        0,
-        0,
-        1
-      );
-      positions.push(
-        -grid_size / 2,
-        grid_size / 2,
-        0
-      );
-      normals.push(
-        0,
-        0,
-        1
-      );
-      positions.push(
-        -grid_size / 2,
-        -grid_size / 2,
-        0
-      );
-      normals.push(
-        0,
-        0,
-        1
-      );
-      colors.push(0.1, 0.2, 0.7, 1);
-      colors.push(0.1, 0.2, 0.7, 1);
-      colors.push(0.1, 0.2, 0.7, 1);
-
       console.log(`Evaluating: ${content}`);
       eval('(function() {' + content + '})();current_shapes.forEach(shape => addShape(oc, shape));');
+
+      const grid_size = 10;
+      // Side 1
+      positions.push(grid_size / 2, -grid_size / 2, 0);
+      positions.push(-grid_size / 2, grid_size / 2, 0);
+      positions.push(-grid_size / 2, -grid_size / 2, 0);
+      normals.push(0, 0, 1, 0, 0, 1, 0, 0, 1);
+      colors.push(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+      positions.push(-grid_size / 2, grid_size / 2, 0);
+      positions.push(grid_size / 2, -grid_size / 2, 0);
+      positions.push(grid_size / 2, grid_size / 2, 0);
+      normals.push(0, 0, 1, 0, 0, 1, 0, 0, 1);
+      colors.push(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+      // Side 2
+      positions.push(-grid_size / 2, -grid_size / 2, 0);
+      positions.push(-grid_size / 2, grid_size / 2, 0);
+      positions.push(grid_size / 2, -grid_size / 2, 0);
+      normals.push(0, 0, 1, 0, 0, 1, 0, 0, 1);
+      colors.push(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+      positions.push(grid_size / 2, grid_size / 2, 0);
+      positions.push(grid_size / 2, -grid_size / 2, 0);
+      positions.push(-grid_size / 2, grid_size / 2, 0);
+      normals.push(0, 0, 1, 0, 0, 1, 0, 0, 1);
+      colors.push(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
       const positionArray = new Float32Array(positions);
       const normalArray = new Float32Array(normals);
       const colorArray = new Float32Array(colors);
