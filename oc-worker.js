@@ -1,5 +1,6 @@
 const positions = [];
 const normals = [];
+const colors = [];
 
 function visualize(openCascade, shape) {
   let geometries = []
@@ -139,6 +140,9 @@ const addShape = (oc, shape) => {
         tesselated.normals[tesselated.indices[i * 3 + 2] * 3 + 1],
         tesselated.normals[tesselated.indices[i * 3 + 2] * 3 + 2]
       );
+      colors.push(0.8, 0.2, 0.1, 1);
+      colors.push(0.8, 0.2, 0.1, 1);
+      colors.push(0.8, 0.2, 0.1, 1);
     }
   });
 }
@@ -249,16 +253,55 @@ import("/opencascade.full.js").then((module) => {
       current_shapes.length = 0;
       positions.length = 0;
       normals.length = 0;
+      colors.length = 0;
+
+      const grid_size = 2;
+      positions.push(
+        grid_size / 2,
+        -grid_size / 2,
+        0
+      );
+      normals.push(
+        0,
+        0,
+        1
+      );
+      positions.push(
+        -grid_size / 2,
+        grid_size / 2,
+        0
+      );
+      normals.push(
+        0,
+        0,
+        1
+      );
+      positions.push(
+        -grid_size / 2,
+        -grid_size / 2,
+        0
+      );
+      normals.push(
+        0,
+        0,
+        1
+      );
+      colors.push(0.1, 0.2, 0.7, 1);
+      colors.push(0.1, 0.2, 0.7, 1);
+      colors.push(0.1, 0.2, 0.7, 1);
+
       console.log(`Evaluating: ${content}`);
       eval('(function() {' + content + '})();current_shapes.forEach(shape => addShape(oc, shape));');
       const positionArray = new Float32Array(positions);
       const normalArray = new Float32Array(normals);
-      console.log(`Posting ${positionArray.length} triangles`);
+      const colorArray = new Float32Array(colors);
+      console.log(`Posting ${positionArray.length / 9} triangles`);
       self.postMessage({
         type: "draw",
         positions: positionArray,
         normals: normalArray,
-      }, [positionArray.buffer, normalArray.buffer]);
+        colors: colorArray,
+      }, [positionArray.buffer, normalArray.buffer, colorArray.buffer]);
     };
 
     const exportSTEP = () => {

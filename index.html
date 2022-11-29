@@ -125,14 +125,17 @@ const genVirus = () => {
 var vertexShaderSource = `#version 300 es
 in vec4 a_position;
 in vec3 a_normal;
+in vec4 a_color;
 
 uniform mat4 u_matrix;
 
 out vec3 v_normal;
+out vec4 v_color;
 
 void main() {
   gl_Position = u_matrix * a_position;
   v_normal = a_normal;
+  v_color = a_color;
 }
 `;
 
@@ -140,14 +143,21 @@ var fragmentShaderSource = `#version 300 es
 precision highp float;
 
 in vec3 v_normal;
+in vec4 v_color;
 
 out vec4 outColor;
 
 void main() {
-  vec3 normal = normalize(v_normal) * 0.6 + 0.4;
-  outColor = vec4(normal[0], normal[1], normal[2], 1);
+  vec3 normal = normalize(v_normal) * 0.4 + 0.6;
+  float light = dot(normal, vec3(0, 1, 0));
+  outColor = v_color;
+  outColor.rgb *= light;
 }
 `;
+
+// vec3 normal = normalize(v_normal) * 0.6 + 0.4;
+// outColor = vec4(v_color[0], v_color[1], v_color[2], v_color[3]);
+// outColor = vec4(normal[0], normal[1], normal[2], 1);
 
 const createShader = (gl, type, source) => {
   const shader = gl.createShader(type);
@@ -192,17 +202,20 @@ const program = createProgram(gl, vertexShader, fragmentShader);
 gl.useProgram(program);
 const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
 const normalLocation = gl.getAttribLocation(program, "a_normal");
+const colorLocation = gl.getAttribLocation(program, "a_color");
 const matrixLocation = gl.getUniformLocation(program, "u_matrix");
 
 const positionBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 const positions = [];
 const normals = [];
+const colors = [];
 for (const line of genVirus()) {
     for (const point of line) {
         for (const coord of point) {
             positions.push(1 - coord);
         }
+        colors.push(0, 0.8, 0.2, 1);
     }
 }
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
@@ -218,11 +231,16 @@ gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 gl.enableVertexAttribArray(normalLocation);
 gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
 
+const colorBuffer = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+gl.enableVertexAttribArray(colorLocation);
+gl.vertexAttribPointer(colorLocation, 4, gl.FLOAT, false, 0, 0);
+
 const near = 0.1;
 const far = 2000;
 const fieldOfViewInRadians = degToRad(60);
 const rotation = [degToRad(-25), degToRad(0), degToRad(0)];
-const rotationSpeed = 0.6;
 
 const multiply2Matrices = (a, b) => {
   const result = [];
@@ -332,7 +350,6 @@ const drawScene = () => {
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.CULL_FACE);
 
-  //rotation[1] += rotationSpeed / 60.0;
   const aspectRatio = gl.canvas.clientWidth / gl.canvas.clientHeight;
   const matrix = multiplyMatrices(
     perspectiveMatrix(fieldOfViewInRadians, aspectRatio, near, far),
@@ -391,6 +408,8 @@ ocWorker.onmessage = (event) => {
       gl.bufferData(gl.ARRAY_BUFFER, event.data.positions, gl.STATIC_DRAW);
       gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, event.data.normals, gl.STATIC_DRAW);
+      gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, event.data.colors, gl.STATIC_DRAW);
       enableExport();
       setStatusHint("Loaded");
       break;
