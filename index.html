@@ -60,6 +60,8 @@ body, html {
 <canvas id="c"></canvas>
 <div id="h"><div id="l" class="blink">Loading...</div><div id="e">Export STEP</div></div>
 <script>
+let startTime = new Date();
+
 const status = document.getElementById("l");
 
 const setStatusWaiting = (message) => {
@@ -430,7 +432,10 @@ ocWorker.onmessage = (event) => {
   console.log(`Message from worker: ${event.data.type}`);
   switch (event.data.type) {
     case "loaded":
-      setStatusHint("Drag & drop file to load it");
+      setStatusHint(`Loaded in ${new Number((new Date().getTime() - startTime) / 1000.0).toFixed(1)}s`);
+      setTimeout(() => {
+        setStatusHint("Drag & drop file to show it");
+      }, 2000);
       break;
     case "draw":
       loading = false;
@@ -443,7 +448,7 @@ ocWorker.onmessage = (event) => {
       gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, event.data.colors, gl.STATIC_DRAW);
       enableExport();
-      setStatusHint("Loaded");
+      setStatusHint(`Loaded in ${new Number((new Date().getTime() - startTime) / 1000.0).toFixed(1)}s`);
       break;
     case "export":
       exportFile(event.data.fileName, event.data.content);
@@ -477,6 +482,7 @@ canvas.addEventListener("dragover", (event) => {
   event.preventDefault();
 }, false);
 canvas.addEventListener("drop", (event) => {
+  startTime = new Date();
   const items = event.dataTransfer.items;
   event.preventDefault();
   for (let i = 0; i < items.length; i++) {
