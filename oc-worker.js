@@ -1,6 +1,7 @@
 const positions = [];
 const normals = [];
 const colors = [];
+let gridSizeX, gridSizeY;
 
 function visualize(openCascade, shape) {
   let geometries = []
@@ -110,6 +111,24 @@ function visualize(openCascade, shape) {
 const addShape = (oc, shape) => {
   visualize(oc, shape).forEach(tesselated => {
     for (let i = 0; i < tesselated.indices.length / 3; i++) {
+      if (Math.abs(tesselated.vertices[tesselated.indices[i * 3] * 3]) > gridSizeX) {
+        gridSizeX = Math.abs(tesselated.vertices[tesselated.indices[i * 3] * 3]);
+      }
+      if (Math.abs(tesselated.vertices[tesselated.indices[i * 3 + 1] * 3]) > gridSizeX) {
+        gridSizeX = Math.abs(tesselated.vertices[tesselated.indices[i * 3 + 1] * 3]);
+      }
+      if (Math.abs(tesselated.vertices[tesselated.indices[i * 3 + 2] * 3]) > gridSizeX) {
+        gridSizeX = Math.abs(tesselated.vertices[tesselated.indices[i * 3 + 2] * 3]);
+      }
+      if (Math.abs(tesselated.vertices[tesselated.indices[i * 3] * 3 + 1]) > gridSizeY) {
+        gridSizeY = Math.abs(tesselated.vertices[tesselated.indices[i * 3] * 3]);
+      }
+      if (Math.abs(tesselated.vertices[tesselated.indices[i * 3 + 1] * 3 + 1]) > gridSizeY) {
+        gridSizeY = Math.abs(tesselated.vertices[tesselated.indices[i * 3 + 1] * 3]);
+      }
+      if (Math.abs(tesselated.vertices[tesselated.indices[i * 3 + 2] * 3 + 1]) > gridSizeY) {
+        gridSizeY = Math.abs(tesselated.vertices[tesselated.indices[i * 3 + 2] * 3]);
+      }
       positions.push(
         tesselated.vertices[tesselated.indices[i * 3] * 3],
         tesselated.vertices[tesselated.indices[i * 3] * 3 + 1],
@@ -254,11 +273,13 @@ import("/opencascade.full.js").then((module) => {
       positions.length = 0;
       normals.length = 0;
       colors.length = 0;
+      gridSizeX = 0;
+      gridSizeY = 0;
 
       console.log(`Evaluating: ${content}`);
       eval('(function() {' + content + '})();current_shapes.forEach(shape => addShape(oc, shape));');
 
-      const grid_size = 10;
+      const grid_size = Math.max(gridSizeX, gridSizeY) * 2;
       // Side 1
       positions.push(grid_size / 2, -grid_size / 2, 0);
       positions.push(-grid_size / 2, grid_size / 2, 0);
@@ -288,6 +309,7 @@ import("/opencascade.full.js").then((module) => {
       console.log(`Posting ${positionArray.length / 9} triangles`);
       self.postMessage({
         type: "draw",
+        grid: 1.0,
         positions: positionArray,
         normals: normalArray,
         colors: colorArray,
