@@ -205,7 +205,7 @@ import("/opencascade.full.js").then((module) => {
       const face = new oc.BRepBuilderAPI_MakeFace_15(wire.Wire(), false).Face();
       const result = new oc.BRepPrimAPI_MakePrism_1(
         face,
-        new oc.gp_Vec_4(0, height, 0),
+        new oc.gp_Vec_4(params.x, params.y, params.z),
         false,
         true).Shape();
       return addCurrentShape(result);
