@@ -268,7 +268,7 @@ import("/opencascade.full.js").then((module) => {
       return shapes;
     };
 
-    const loadFile = (content) => {
+    const loadFile = (fileName, content) => {
       current_shapes.length = 0;
       positions.length = 0;
       normals.length = 0;
@@ -276,8 +276,10 @@ import("/opencascade.full.js").then((module) => {
       gridSizeX = 0;
       gridSizeY = 0;
 
-      console.log(`Evaluating: ${content}`);
-      eval('(function() {' + content + '})();current_shapes.forEach(shape => addShape(oc, shape));');
+      eval('(function() {' + content + '})();');
+      current_shapes.forEach(shape => addShape(oc, shape));
+
+      const triangles = positions.length / 9;
 
       const grid_size = Math.max(gridSizeX, gridSizeY) * 2;
       // Side 1
@@ -306,10 +308,12 @@ import("/opencascade.full.js").then((module) => {
       const positionArray = new Float32Array(positions);
       const normalArray = new Float32Array(normals);
       const colorArray = new Float32Array(colors);
-      console.log(`Posting ${positionArray.length / 9} triangles`);
       self.postMessage({
         type: "draw",
         grid: 1.0,
+        fileName: fileName,
+        parts: current_shapes.length,
+        triangles: triangles,
         positions: positionArray,
         normals: normalArray,
         colors: colorArray,
@@ -336,7 +340,7 @@ import("/opencascade.full.js").then((module) => {
       console.log(`Message from main script: ${event.data.type}`);
       switch (event.data.type) {
         case "file":
-          loadFile(event.data.content);
+          loadFile(event.data.fileName, event.data.content);
           break;
         case "exportSTEP":
           exportSTEP();

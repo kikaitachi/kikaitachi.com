@@ -427,12 +427,16 @@ const exportFile = (fileName, content) => {
   setStatusHint("Exported");
 };
 
+const elapsedTime = () => {
+  return new Number((new Date().getTime() - startTime) / 1000.0).toFixed(1) + "s";
+};
+
 const ocWorker = new Worker("oc-worker.js");
 ocWorker.onmessage = (event) => {
   console.log(`Message from worker: ${event.data.type}`);
   switch (event.data.type) {
     case "loaded":
-      setStatusHint(`Loaded in ${new Number((new Date().getTime() - startTime) / 1000.0).toFixed(1)}s`);
+      setStatusHint(`Loaded in ${elapsedTime()}`);
       setTimeout(() => {
         setStatusHint("Drag & drop file to show it");
       }, 2000);
@@ -448,7 +452,7 @@ ocWorker.onmessage = (event) => {
       gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, event.data.colors, gl.STATIC_DRAW);
       enableExport();
-      setStatusHint(`Loaded in ${new Number((new Date().getTime() - startTime) / 1000.0).toFixed(1)}s`);
+      setStatusHint(`Loaded ${event.data.fileName} in ${elapsedTime()}, tesselated ${event.data.parts} parts using ${event.data.triangles} triangles`);
       break;
     case "export":
       exportFile(event.data.fileName, event.data.content);
@@ -468,9 +472,10 @@ const processFiles = (item) => {
     item.file((file) => {
       const reader = new FileReader();
       reader.onload = () => {
-        setStatusWaiting("Loading...");
+        setStatusWaiting(`Loading ${item.name}...`);
         ocWorker.postMessage({
           type: "file",
+          fileName: item.name,
           content: reader.result,
         });
       };
