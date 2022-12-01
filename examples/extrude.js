@@ -3,6 +3,7 @@ const R = 40;
 const k = 32;
 const r = R / k;
 const angularStep = 0.2;
+const height = 5;
 
 for (let i = 0; i < k; i++) {
   for (let j = 0.0; j < 360.0 / k; j += angularStep) {
@@ -26,9 +27,22 @@ for (let i = 0; i < k; i++) {
 }
 points.push(points[0]);
 
-extrude({
-  points: points,
-  x: 0,
-  y: 0,
-  z: 5,
-});
+union(
+  extrude({
+    points: points,
+    x: 0,
+    y: 0,
+    z: height,
+  }),
+  translate({
+    x: -(R + 20),
+    y: -R,
+    z: 0,
+  },
+    box({
+      x: R + 20,
+      y: 2 * R,
+      z: height,
+    })
+  )
+);
