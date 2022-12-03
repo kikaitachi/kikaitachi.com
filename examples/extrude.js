@@ -1,9 +1,11 @@
 const points = [];
-const R = 40;
-const k = 32;
+const numberOfTeeth = 15;
+const segmentThickness = 40;
+const k = numberOfTeeth * 2;
+const R = segmentThickness / (2 - 2.0 / numberOfTeeth);
 const r = R / k;
-const angularStep = 0.2;
-const height = 5;
+const angularStep = 0.5;
+const height = 3;
 
 for (let i = 0; i < k; i++) {
   for (let j = 0.0; j < 360.0 / k; j += angularStep) {
@@ -35,13 +37,13 @@ union(
     z: height,
   }),
   translate({
-    x: -(R + 20),
-    y: -R,
+    x: -segmentThickness,
+    y: -segmentThickness / 2,
     z: 0,
   },
     box({
-      x: R + 20,
-      y: 2 * R,
+      x: segmentThickness,
+      y: segmentThickness,
       z: height,
     })
   )

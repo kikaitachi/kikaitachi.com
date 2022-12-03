@@ -267,11 +267,6 @@ gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
 gl.enableVertexAttribArray(colorLocation);
 gl.vertexAttribPointer(colorLocation, 4, gl.FLOAT, false, 0, 0);
 
-const near = 0.1;
-const far = 2000;
-const fieldOfViewInRadians = degToRad(60);
-const rotation = [degToRad(-25), degToRad(0), degToRad(0)];
-
 const multiply2Matrices = (a, b) => {
   const result = [];
 
@@ -362,11 +357,15 @@ const rotateZMatrix = (a) => [
   0, 0, 0, 1
 ];
 
-let scale = far / 4;
+const near = 0.1;
+const far = 4000;
+const fieldOfViewInRadians = degToRad(60);
+const rotation = [degToRad(50), degToRad(0), degToRad(0)];
+
+let scale = far / 150;
 let x = 0;
 let y = 0;
 let z = -(far - near) / 2;
-
 let loading = true;
 let triangeCount = 0;
 

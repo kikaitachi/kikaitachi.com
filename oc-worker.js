@@ -166,6 +166,8 @@ const addShape = (oc, shape) => {
   });
 }
 
+const degToRad = (d) => d * Math.PI / 180;
+
 // https://cdn.jsdelivr.net/npm/opencascade.js@2.0.0-beta.94e2944
 import("/opencascade.full.js").then((module) => {
   module.default().then((oc) => {
@@ -262,7 +264,25 @@ import("/opencascade.full.js").then((module) => {
       const transformation = new oc.gp_Trsf_1();
       transformation.SetRotation_1(
         new oc.gp_Ax1_2(new oc.gp_Pnt_3(0, 0, 0),
-        new oc.gp_Dir_2(new oc.gp_Vec_4(1, 0, 0))), params.degrees * 0.0174533);
+        new oc.gp_Dir_2(new oc.gp_Vec_4(1, 0, 0))), degToRad(params.degrees));
+      const translation = new oc.TopLoc_Location_2(transformation);
+      shapes.forEach(shape => shape.Move(translation, true));
+      return shapes;
+    };
+    const rotateY = (params, ...shapes) => {
+      const transformation = new oc.gp_Trsf_1();
+      transformation.SetRotation_1(
+        new oc.gp_Ax1_2(new oc.gp_Pnt_3(0, 0, 0),
+        new oc.gp_Dir_2(new oc.gp_Vec_4(0, 1, 0))), degToRad(params.degrees));
+      const translation = new oc.TopLoc_Location_2(transformation);
+      shapes.forEach(shape => shape.Move(translation, true));
+      return shapes;
+    };
+    const rotateZ = (params, ...shapes) => {
+      const transformation = new oc.gp_Trsf_1();
+      transformation.SetRotation_1(
+        new oc.gp_Ax1_2(new oc.gp_Pnt_3(0, 0, 0),
+        new oc.gp_Dir_2(new oc.gp_Vec_4(0, 0, 1))), degToRad(params.degrees));
       const translation = new oc.TopLoc_Location_2(transformation);
       shapes.forEach(shape => shape.Move(translation, true));
       return shapes;
