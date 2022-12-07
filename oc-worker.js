@@ -12,7 +12,7 @@ function visualize(openCascade, shape) {
     let inc;
     try {
       //in case some of the faces can not been visualized
-      inc = new openCascade.BRepMesh_IncrementalMesh_2(myFace, 0.05, false, 0.25, false);
+      inc = new openCascade.BRepMesh_IncrementalMesh_2(myFace, 0.1, false, 0.5, false);
     } catch (e) {
       console.error(`failed to build incremental mesh: ${e}`);
       continue;
@@ -245,6 +245,12 @@ import("/opencascade.full.js").then((module) => {
       return addCurrentShape(new oc.BRepPrimAPI_MakeCone_1(
         params.radiusTop,
         params.radiusBottom,
+        params.height
+      ).Shape());
+    };
+    const cylinder = (params) => {
+      return addCurrentShape(new oc.BRepPrimAPI_MakeCylinder_1(
+        params.radius,
         params.height
       ).Shape());
     };

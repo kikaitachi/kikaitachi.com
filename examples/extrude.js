@@ -52,6 +52,10 @@ difference(
       })
     )
   ),
+  cylinder({
+    radius: jointHoleRadius,
+    height: height,
+  }),
   translate({
     x: 0,
     y: -R * 2,
@@ -65,5 +69,5 @@ difference(
     z: 0,
   },
     gear
-  ),
+  )
 );
