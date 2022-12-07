@@ -184,11 +184,11 @@ import("/opencascade.full.js").then((module) => {
     }
 
     const difference = (...arguments) => {
-      let result = arguments[0];
-      removeCurrentShape(result);
-      arguments.slice(1).flat().forEach(shape => {
+      const shapes = arguments.flat();
+      let result = removeCurrentShape(shapes[0]);
+      shapes.slice(1).forEach(shape => {
         shape = removeCurrentShape(shape);
-        let intermediate = new oc.BRepAlgoAPI_Cut_3(result, shape, new oc.Message_ProgressRange_1());
+        const intermediate = new oc.BRepAlgoAPI_Cut_3(result, shape, new oc.Message_ProgressRange_1());
         intermediate.Build(new oc.Message_ProgressRange_1());
         result = intermediate.Shape();
       });
@@ -213,22 +213,22 @@ import("/opencascade.full.js").then((module) => {
       return addCurrentShape(result);
     };
     const intersection = (...arguments) => {
-      let result = arguments[0];
-      removeCurrentShape(result);
-      arguments.slice(1).flat().forEach(shape => {
+      const shapes = arguments.flat();
+      let result = removeCurrentShape(shapes[0]);
+      shapes.slice(1).forEach(shape => {
         shape = removeCurrentShape(shape);
-        let intermediate = new oc.BRepAlgoAPI_Common_3(result, shape, new oc.Message_ProgressRange_1());
+        const intermediate = new oc.BRepAlgoAPI_Common_3(result, shape, new oc.Message_ProgressRange_1());
         intermediate.Build(new oc.Message_ProgressRange_1());
         result = intermediate.Shape();
       });
       return addCurrentShape(result);
     };
     const union = (...arguments) => {
-      let result = arguments[0];
-      removeCurrentShape(result);
-      arguments.slice(1).flat().forEach(shape => {
+      const shapes = arguments.flat();
+      let result = removeCurrentShape(shapes[0]);
+      shapes.slice(1).forEach(shape => {
         shape = removeCurrentShape(shape);
-        let intermediate = new oc.BRepAlgoAPI_Fuse_3(result, shape, new oc.Message_ProgressRange_1());
+        const intermediate = new oc.BRepAlgoAPI_Fuse_3(result, shape, new oc.Message_ProgressRange_1());
         intermediate.Build(new oc.Message_ProgressRange_1());
         result = intermediate.Shape();
       });
@@ -257,8 +257,9 @@ import("/opencascade.full.js").then((module) => {
       const transformation = new oc.gp_Trsf_1();
       transformation.SetTranslation_1(new oc.gp_Vec_4(params.x, params.y, params.z));
       const translation = new oc.TopLoc_Location_2(transformation);
-      shapes.forEach(shape => shape.Move(translation, true));
-      return shapes;
+      //shapes.forEach(shape => shape.Move(translation, true));
+      //return shapes;
+      return shapes.map(shape => addCurrentShape(removeCurrentShape(shape).Moved(translation, true)));
     };
     const rotateX = (params, ...shapes) => {
       const transformation = new oc.gp_Trsf_1();

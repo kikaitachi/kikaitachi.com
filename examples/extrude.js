@@ -1,11 +1,12 @@
 const points = [];
 const numberOfTeeth = 15;
-const segmentThickness = 40;
+const segmentThickness = 20;
 const k = numberOfTeeth * 2;
-const R = segmentThickness / (2 - 2.0 / numberOfTeeth);
+const R = segmentThickness / 2; //segmentThickness / (2 - 2.0 / numberOfTeeth);
 const r = R / k;
 const angularStep = 0.5;
 const height = 3;
+const jointHoleRadius = 1.1;
 
 for (let i = 0; i < k; i++) {
   for (let j = 0.0; j < 360.0 / k; j += angularStep) {
@@ -29,22 +30,40 @@ for (let i = 0; i < k; i++) {
 }
 points.push(points[0]);
 
-union(
-  extrude({
-    points: points,
-    x: 0,
-    y: 0,
-    z: height,
-  }),
+const gear = extrude({
+  points: points,
+  x: 0,
+  y: 0,
+  z: height,
+});
+
+difference(
+  union(
+    gear,
+    translate({
+      x: -segmentThickness,
+      y: -segmentThickness / 2,
+      z: 0,
+    },
+      box({
+        x: segmentThickness,
+        y: segmentThickness,
+        z: height,
+      })
+    )
+  ),
   translate({
-    x: -segmentThickness,
-    y: -segmentThickness / 2,
+    x: 0,
+    y: -R * 2,
     z: 0,
   },
-    box({
-      x: segmentThickness,
-      y: segmentThickness,
-      z: height,
-    })
-  )
+    gear
+  ),
+  translate({
+    x: 0,
+    y: R * 2,
+    z: 0,
+  },
+    gear
+  ),
 );
