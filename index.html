@@ -165,6 +165,15 @@ void main() {
     vec2 grid = abs(fract(coord - 0.5) - 0.5) / fwidth(coord);
     float line = min(grid.x, grid.y);
 
+    vec2 majorCoord = coord / 10.0;
+    vec2 majorGrid = abs(fract(majorCoord - 0.5) - 0.5) / fwidth(majorCoord);
+    float majorLine;
+    if (grid.x < grid.y) {
+      majorLine = majorGrid.x;
+    } else {
+      majorLine = majorGrid.y;
+    }
+
     // Just visualize the grid lines directly
     float color = 1.0 - min(line, 1.0);
 
@@ -173,7 +182,11 @@ void main() {
     if (color < 0.01) {
       outColor = vec4(0.0, 0.0, 0.0, 0.0);
     } else {
-      outColor = vec4(vec3(color), 1.0);
+      if (abs(majorLine - line) < 0.1) {
+        outColor = vec4(vec3(color), 1.0);
+      } else {
+        outColor = vec4(vec3(color) / 2.0, 1.0);
+      }
     }
   } else {
     vec3 normal = normalize(v_normal) * 0.4 + 0.6;
