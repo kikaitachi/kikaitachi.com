@@ -183,9 +183,9 @@ void main() {
       outColor = vec4(0.0, 0.0, 0.0, 0.0);
     } else {
       if (abs(majorLine - line) < 0.1) {
-        outColor = vec4(vec3(color), 1.0);
-      } else {
         outColor = vec4(vec3(color) / 2.0, 1.0);
+      } else {
+        outColor = vec4(vec3(color) / 3.0, 1.0);
       }
     }
   } else {
