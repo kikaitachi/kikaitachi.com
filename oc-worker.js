@@ -169,7 +169,7 @@ const addShape = (oc, shape) => {
 const degToRad = (d) => d * Math.PI / 180;
 
 // https://cdn.jsdelivr.net/npm/opencascade.js@2.0.0-beta.94e2944
-import("/opencascade.full.js").then((module) => {
+import("/opencascade.js").then((module) => {
   module.default().then((oc) => {
     let current_shapes = [];
 
