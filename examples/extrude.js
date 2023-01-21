@@ -1,12 +1,30 @@
 const points = [];
 const numberOfTeeth = 15;
-const segmentThickness = 20;
+const segmentThickness = 30;
 const k = numberOfTeeth * 2;
 const R = segmentThickness / 2; //segmentThickness / (2 - 2.0 / numberOfTeeth);
 const r = R / k;
 const angularStep = 0.5;
-const height = 3;
-const jointHoleRadius = 1.1;
+const height = 2.5;
+const jointHoleRadius = 2.1;
+const screwHoleRadius = 2.1;
+
+const screwHoles = [];
+const scewsPerAxis = segmentThickness / 10;
+for (let i = 0; i < scewsPerAxis - 1; i++) {
+  for (let j = 0; j < scewsPerAxis; j++) {
+    screwHoles.push(translate({
+      x: -i * 10 - 10,
+      y: j * 10 - segmentThickness / 2 + 5,
+      z: 0,
+    },
+      cylinder({
+        radius: screwHoleRadius,
+        height: height,
+      })
+    ));
+  }
+}
 
 for (let i = 0; i < k; i++) {
   for (let j = 0.0; j < 360.0 / k; j += angularStep) {
@@ -41,12 +59,12 @@ difference(
   union(
     gear,
     translate({
-      x: -segmentThickness,
+      x: -segmentThickness + 5,
       y: -segmentThickness / 2,
       z: 0,
     },
       box({
-        x: segmentThickness,
+        x: segmentThickness - 5,
         y: segmentThickness,
         z: height,
       })
@@ -56,6 +74,7 @@ difference(
     radius: jointHoleRadius,
     height: height,
   }),
+  screwHoles,
   translate({
     x: 0,
     y: -R * 2,

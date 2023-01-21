@@ -184,7 +184,7 @@ import("/opencascade.js").then((module) => {
     }
 
     const difference = (...arguments) => {
-      const shapes = arguments.flat();
+      const shapes = arguments.flat(2);
       let result = removeCurrentShape(shapes[0]);
       shapes.slice(1).forEach(shape => {
         shape = removeCurrentShape(shape);
@@ -213,7 +213,7 @@ import("/opencascade.js").then((module) => {
       return addCurrentShape(result);
     };
     const intersection = (...arguments) => {
-      const shapes = arguments.flat();
+      const shapes = arguments.flat(2);
       let result = removeCurrentShape(shapes[0]);
       shapes.slice(1).forEach(shape => {
         shape = removeCurrentShape(shape);
@@ -224,7 +224,7 @@ import("/opencascade.js").then((module) => {
       return addCurrentShape(result);
     };
     const union = (...arguments) => {
-      const shapes = arguments.flat();
+      const shapes = arguments.flat(2);
       let result = removeCurrentShape(shapes[0]);
       shapes.slice(1).forEach(shape => {
         shape = removeCurrentShape(shape);
