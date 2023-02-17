@@ -263,9 +263,7 @@ import("/opencascade.js").then((module) => {
       const transformation = new oc.gp_Trsf_1();
       transformation.SetTranslation_1(new oc.gp_Vec_4(params.x, params.y, params.z));
       const translation = new oc.TopLoc_Location_2(transformation);
-      //shapes.forEach(shape => shape.Move(translation, true));
-      //return shapes;
-      return shapes.map(shape => addCurrentShape(removeCurrentShape(shape).Moved(translation, true)));
+      return shapes.flat(2).map(shape => addCurrentShape(removeCurrentShape(shape).Moved(translation, true)));
     };
     const rotateX = (params, ...shapes) => {
       const transformation = new oc.gp_Trsf_1();
@@ -273,8 +271,7 @@ import("/opencascade.js").then((module) => {
         new oc.gp_Ax1_2(new oc.gp_Pnt_3(0, 0, 0),
         new oc.gp_Dir_2(new oc.gp_Vec_4(1, 0, 0))), degToRad(params.degrees));
       const translation = new oc.TopLoc_Location_2(transformation);
-      shapes.forEach(shape => shape.Move(translation, true));
-      return shapes;
+      return shapes.flat(2).map(shape => addCurrentShape(removeCurrentShape(shape).Moved(translation, true)));
     };
     const rotateY = (params, ...shapes) => {
       const transformation = new oc.gp_Trsf_1();
@@ -282,8 +279,7 @@ import("/opencascade.js").then((module) => {
         new oc.gp_Ax1_2(new oc.gp_Pnt_3(0, 0, 0),
         new oc.gp_Dir_2(new oc.gp_Vec_4(0, 1, 0))), degToRad(params.degrees));
       const translation = new oc.TopLoc_Location_2(transformation);
-      shapes.forEach(shape => shape.Move(translation, true));
-      return shapes;
+      return shapes.flat(2).map(shape => addCurrentShape(removeCurrentShape(shape).Moved(translation, true)));
     };
     const rotateZ = (params, ...shapes) => {
       const transformation = new oc.gp_Trsf_1();
@@ -291,8 +287,7 @@ import("/opencascade.js").then((module) => {
         new oc.gp_Ax1_2(new oc.gp_Pnt_3(0, 0, 0),
         new oc.gp_Dir_2(new oc.gp_Vec_4(0, 0, 1))), degToRad(params.degrees));
       const translation = new oc.TopLoc_Location_2(transformation);
-      shapes.forEach(shape => shape.Move(translation, true));
-      return shapes;
+      return shapes.flat(2).map(shape => addCurrentShape(removeCurrentShape(shape).Moved(translation, true)));
     };
 
     const loadFile = (fileName, content) => {
