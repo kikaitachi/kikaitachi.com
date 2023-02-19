@@ -26,7 +26,7 @@ for (let i = 0; i < scewsPerAxis - 1; i++) {
   }
 }
 
-const cycloidalGear = (R, r, k, angularStep) => {
+const cycloidalGear = (R, r, k, angularStep, height) => {
   const points = [];
   for (let i = 0; i < k; i++) {
     for (let j = 0.0; j < 360.0 / k; j += angularStep) {
@@ -58,7 +58,7 @@ const cycloidalGear = (R, r, k, angularStep) => {
   });
 };
 
-const gear = cycloidalGear(R, r, k, angularStep);
+const gear = cycloidalGear(R, r, k, angularStep, height);
 
 difference(
   union(
@@ -82,12 +82,12 @@ difference(
     /*rotateZ({
       degrees: 360 / (2 * 3),
     },
-    cycloidalGear(R / 2, (R / 2) / (2 * 3), 2 * 3, angularStep)
+    cycloidalGear(R / 2, (R / 2) / (2 * 3), 2 * 3, angularStep, height)
     ))*/
     rotateZ({
       degrees: 360 / (k / 2),
     },
-    cycloidalGear(R / 2, r, k / 2, angularStep)
+    cycloidalGear(R / 2, r, k / 2, angularStep, height)
     ))
   ),
   cylinder({
